@@ -16,40 +16,30 @@ char* get_input(void) {
         input[input_len - 2] = chr;
     }
     
-    
     return input;
 }
 
 
-void concatenate(char* str1, char str2, char** postfix) {
-//    size_t len1 = strlen(str1);
-//    size_t len2 = strlen(str2);
-//
-//    char *result = malloc(len1 + len2);
-//
-//    memcpy(result, str1, len1);
-//    memcpy(result + len1, str2, len2);
-//    
-//    free(*postfix);
-//    return result;
-    
-//    int len = (int)strlen(*postfix);
-//    *postfix = realloc(*postfix, (len + 1) * sizeof(char));
-//    *postfix[len] = str2;
+//  units str1 and str2
+void concatenate(char* str, char** postfix) {
+    int len = (int)strlen(*postfix);
+    *postfix = realloc(*postfix, (len + 2) * sizeof(char));
+    strncat(*postfix, str, 1);
 }
 
 
+//  returns 1 if smbl is digit, 0 if it`s an operator and -1 if syntax error
 int is_digit(char smbl) {
     if ('0' <= smbl && smbl <= '9')
         return 1;
     else if ('(' <= smbl && smbl <= '/' && smbl != '.' && smbl != ',')
         return 0;
     
-    printf("syntax error\n");
     return -1;
 }
 
 
+//  counts the number of occurrences chr in str
 int count(char* str, char chr) {
     int counter = 0;
     
