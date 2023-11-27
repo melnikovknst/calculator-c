@@ -42,6 +42,7 @@ void push(STACK** elem, int value) {
     *elem = new;
 }
 
+
 void destroy(STACK** elem) {
     while (*elem != NULL)
         pop(elem);
