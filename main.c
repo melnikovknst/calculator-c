@@ -13,10 +13,8 @@ int main(void) {
     char* input = get_input();
     char* postfix = postfix_notation(input);
     
-    printf("%s", postfix);
-    
     if ((is_digit(input[0]) != 1 && input[0] != '(') || !postfix) {
-        printf("syntax error1\n");
+        printf("syntax error\n");
         
         return 0;
     }
@@ -34,32 +32,21 @@ int main(void) {
 }
 
 
-
 char* postfix_notation(char* str) {
+    char* postfix = (char*)malloc(sizeof(char));
     STACK* op_stack = NULL;     // stack for operators
-    int len1 = (int)strlen(str);
+    int len = (int)strlen(str);
     int operators = 0;
     int brackets = 0;
-    char* postfix = (char*)malloc(0);
     
-    
-    for (int i = 0; i < len1; i++) {
+    for (int i = 0; i < len; i++) {
         char chr = str[i];
         
-        if (is_digit(chr) == 1) {
-            concatenate(postfix, chr, &postfix);
-            int len = (int)strlen(postfix);
-            postfix = realloc(postfix, (len + 1) * sizeof(char));
-            postfix[len] = chr;
-        }
-            
+        if (is_digit(chr) == 1)
+            concatenate(&chr, &postfix);
         else if (is_digit(chr) == 0) {
-            if (chr != ')' && chr != '(') {
-                concatenate(postfix, '1', &postfix);
-                int len = (int)strlen(postfix);
-                postfix = realloc(postfix, (len + 1) * sizeof(char));
-                postfix[len] = ' ';
-            }
+            if (chr != '(')
+                concatenate(" ", &postfix);
             
             if (empty(op_stack)) {
                 push(&op_stack, (int)chr);
@@ -72,21 +59,17 @@ char* postfix_notation(char* str) {
             else if (chr == '(') {
                 push(&op_stack, (int)chr);
                 brackets++;
+                operators++;
             }
-            
+            else if (chr == ')' && brackets <= 0)
+                return NULL;
             else if (chr == ')') {
                 brackets--;
                 
                 while ((char)(op_stack->value) != '(') {
                     char op = (char)pop(&op_stack);
-                    concatenate(postfix, op, &postfix);
-                    concatenate(postfix, '1', &postfix);
-                    int len = (int)strlen(postfix);
-                    postfix = realloc(postfix, (len + 1) * sizeof(char));
-                    postfix[len] = op;
-                    len ++;
-                    postfix = realloc(postfix, (len + 1) * sizeof(char));
-                    postfix[len] = ' ';
+                    concatenate(&op, &postfix);
+                    concatenate(" ", &postfix);
                 }
                 
                 pop(&op_stack);
@@ -98,14 +81,8 @@ char* postfix_notation(char* str) {
             else {
                 while (op_stack) {
                     char op = (char)pop(&op_stack);
-                    concatenate(postfix, op, &postfix);
-                    concatenate(postfix, '1', &postfix);
-                    int len = (int)strlen(postfix);
-                    postfix = realloc(postfix, (len + 1) * sizeof(char));
-                    postfix[len] = op;
-                    len ++;
-                    postfix = realloc(postfix, (len + 1) * sizeof(char));
-                    postfix[len] = ' ';
+                    concatenate(&op, &postfix);
+                    concatenate(" ", &postfix);
                 }
                 
                 push(&op_stack, (int)chr);
@@ -114,33 +91,21 @@ char* postfix_notation(char* str) {
         }
         else
             return NULL;
-        
-        if (brackets < 0)
-            return NULL;
     }
     
-    concatenate(postfix, '1', &postfix);
-    int len = (int)strlen(postfix);
-    postfix = realloc(postfix, (len + 1) * sizeof(char));
-    postfix[len] = ' ';
+    concatenate(" ", &postfix);
     
     while (op_stack) {
         char op = pop(&op_stack);
         if (op != ')') {
-            concatenate(postfix, op, &postfix);
-            concatenate(postfix, '1', &postfix);
-            int len = (int)strlen(postfix);
-            postfix = realloc(postfix, (len + 1) * sizeof(char));
-            postfix[len] = op;
-            len ++;
-            postfix = realloc(postfix, (len + 1) * sizeof(char));
-            postfix[len] = ' ';
+            concatenate(&op, &postfix);
+            concatenate(" ", &postfix);
         }
     }
     
     
-    //if (count(postfix, ' ') - operators * 2 == 1)
-        //return NULL;
+    if (count(postfix, ' ') - operators * 2 == 1)
+        return NULL;
     
     return postfix;
 }
