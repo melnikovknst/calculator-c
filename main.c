@@ -59,7 +59,8 @@ char* postfix_notation(char* str) {
             else if (chr == ')') {
                 operators++;
                 brackets--;
-                if ((char)op_stack->value == '(')
+                
+                if (str[i - 1] == '(')
                     return NULL;
                 
                 while (op_stack && (char)(op_stack->value) != '(') {
@@ -77,6 +78,7 @@ char* postfix_notation(char* str) {
             else {
                 while (op_stack && order(op_stack->value) >= order(chr)) {
                     char op = (char)pop(&op_stack);
+                    
                     if (op != '(') {
                         concatenate(&op, &postfix);
                         concatenate(" ", &postfix);
