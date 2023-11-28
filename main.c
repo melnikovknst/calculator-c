@@ -12,6 +12,7 @@ int order(char);
 int main(void) {
     char* input = get_input();
     char* postfix = postfix_notation(input);
+    //printf("%s", postfix);
     
     if ((is_digit(input[0]) != 1 && input[0] != '(') || !postfix) {
         printf("syntax error\n");
@@ -19,14 +20,7 @@ int main(void) {
         return 0;
     }
         
-    
-    
-    
-    
-    
-    //printf("%d", atoi("25")+3);
-        
-    //calculate(postfix);
+    calculate(postfix);
     
     return 0;
 }
@@ -59,30 +53,34 @@ char* postfix_notation(char* str) {
             else if (chr == '(') {
                 push(&op_stack, (int)chr);
                 brackets++;
-                operators++;
             }
             else if (chr == ')' && brackets <= 0)
                 return NULL;
             else if (chr == ')') {
+                operators++;
                 brackets--;
+                if ((char)op_stack->value == '(')
+                    return NULL;
                 
-                while ((char)(op_stack->value) != '(') {
+                while (op_stack && (char)(op_stack->value) != '(') {
                     char op = (char)pop(&op_stack);
                     concatenate(&op, &postfix);
                     concatenate(" ", &postfix);
                 }
-                
-                pop(&op_stack);
+                if (op_stack && (char)(op_stack->value) == '(')
+                    pop(&op_stack);
             }
             else if (order(chr) > order(op_stack->value)) {
                 push(&op_stack, (int)chr);
                 operators++;
             }
             else {
-                while (op_stack) {
+                while (op_stack && order(op_stack->value) >= order(chr)) {
                     char op = (char)pop(&op_stack);
-                    concatenate(&op, &postfix);
-                    concatenate(" ", &postfix);
+                    if (op != '(') {
+                        concatenate(&op, &postfix);
+                        concatenate(" ", &postfix);
+                    }
                 }
                 
                 push(&op_stack, (int)chr);
@@ -93,34 +91,75 @@ char* postfix_notation(char* str) {
             return NULL;
     }
     
-    concatenate(" ", &postfix);
+    if (operators * 2 >= (int)strlen(str))
+        return NULL;
     
     while (op_stack) {
         char op = pop(&op_stack);
-        if (op != ')') {
-            concatenate(&op, &postfix);
-            concatenate(" ", &postfix);
-        }
+        concatenate(" ", &postfix);
+        concatenate(&op, &postfix);
     }
-    
-    
-    if (count(postfix, ' ') - operators * 2 == 1)
-        return NULL;
     
     return postfix;
 }
 
 
 int order(char op) {
-    char* opers = "((-+*/)";
+    char* opers = "((-+/*)";
     for (int i = 0; i < (int)strlen(opers); i++)
         if (opers[i] == op)
-            return i/2;
+            return (int)(i/2);
     
     return -1;
 }
 
 
 void calculate(char* postfix) {
-    postfix[0] = '2';
+    char *elem = strtok(postfix, " ");
+    STACK* calc_stack = NULL;
+    
+    while (elem != NULL) {
+        if ((int)strlen(elem) == 1 && is_digit(elem[0]) == 0){
+            if (empty(calc_stack) || calc_stack->next == NULL) {
+                printf("syntax error\n");
+                return;
+            }
+            else if (elem[0] == '/' && calc_stack->value == 0) {
+                printf("division by zero\n");
+                return;
+            }
+            else {
+                int a = calc_stack->next->value;
+                int b = calc_stack->value;
+                pop(&calc_stack);
+                
+                switch (elem[0]) {
+                    case '-':
+                        calc_stack->value = a - b;
+                        break;
+                    case '+':
+                        calc_stack->value = a + b;
+                        break;
+                    case '*':
+                        calc_stack->value = a * b;
+                        break;
+                    case '/':
+                        calc_stack->value = a / b;
+                        break;
+                    default:
+                        break;
+                }
+            }
+                
+        }
+        else if ((int)strlen(elem) != 0)
+            push(&calc_stack, atoi(elem));
+        
+        elem = strtok(NULL, " ");
+    }
+    
+    if (calc_stack && !calc_stack->next)
+        printf("%d\n", calc_stack->value);
+    else
+        printf("syntax error\n");
 }
