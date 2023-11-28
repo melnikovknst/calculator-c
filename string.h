@@ -39,16 +39,4 @@ int is_digit(char smbl) {
 }
 
 
-//  counts the number of occurrences chr in str
-int count(char* str, char chr) {
-    int counter = 0;
-    
-    for (int i = 0; i < (int)strlen(str); i++)
-        if (str[i] == chr)
-            counter++;
-    
-    return counter;
-}
-
-
 #endif /* string_h */
