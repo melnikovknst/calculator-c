@@ -12,7 +12,6 @@ int order(char);
 int main(void) {
     char* input = get_input();
     char* postfix = postfix_notation(input);
-    //printf("%s", postfix);
     
     if ((is_digit(input[0]) != 1 && input[0] != '(') || !postfix) {
         printf("syntax error\n");
@@ -83,8 +82,7 @@ char* postfix_notation(char* str) {
                         concatenate(&op, &postfix);
                         concatenate(" ", &postfix);
                     }
-                }
-                
+                }                
                 push(&op_stack, (int)chr);
                 operators++;
             }
